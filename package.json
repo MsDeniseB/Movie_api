@@ -1,15 +1,27 @@
 {
-  "name": "express",
+  "name": "npm-install-lodash",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MsDeniseB/Movie_api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MsDeniseB/Movie_api/issues"
+  },
+  "homepage": "https://github.com/MsDeniseB/Movie_api#readme",
   "dependencies": {
-    "express": "^4.18.1"
-},
-"devDependencies"{},
-"scripts": {
-  "test" "echo\"Error: no test specified\" && exit 1"
-},
-"keywords": [],
-"author": "",
-"license": "ISC"
+    "body-parser": "^1.20.0",
+    "express": "^4.18.1",
+    "save": "^2.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.21.0"
+  }
+}
