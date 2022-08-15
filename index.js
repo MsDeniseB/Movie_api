@@ -85,8 +85,37 @@ let movies = [
         director: 'Christopher Nolan',
         genre: 'Sci-Fi'
       }]
+    },
+    {
+      id:3,
+      name: 'Janes Doe',
+      email: 'janesdoe@mail.com',
+      favMovies: [{
+        title: 'The Matrix',
+        director: 'Lana Wachowski',
+        genre: 'Sci-fi'
+      }]
+    },
+    {
+      id:4,
+      name: 'Jame Done',
+      email: 'jamedone@mail.com',
+      favMovies: [{
+        title: 'Inception',
+        director: 'Christopher Nolan',
+        genre: 'Sci-Fi'
+      }]
+    },
+    {
+      id:5,
+      name: 'Jan Foe',
+      email: 'janFoe@mail.com',
+      favMovies: [{
+        title: 'Inception',
+        director: 'Christopher Nolan',
+        genre: 'Sci-Fi'
+      }]
     }
-  
   ];
 
 app.get("/", (req, res) => {
