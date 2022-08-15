@@ -134,6 +134,14 @@ app.get("/movies/:title", (req, res)=>{
     res.json(movies.find(x=>x.title===req.params.title))
 })
 
+app.get("/movies/:genre", (req, res)=>{
+  res.json(movies.find(x=>x.genre===req.params.genre))
+})
+
+app.get("/movies/:director", (req, res)=>{
+  res.json(movies.find(x=>x.director===req.params.director))
+})
+
 app.get("/users", (req, res) => {
     res.json(users)
 })
@@ -145,5 +153,23 @@ app.get("/user/:name", (req, res)=>{
 app.delete("/user/:name", (req, res)=>{
     res.json(users.filter(x=>x.name!=req.params.name))
 })
+
+app.delete("/user/:favMovies", (req, res)=>{
+  res.json(users.filter(x=>x.favMovies!=req.params.favMovies))
+})
+
+app.post('/Users', (req, res) => {
+  let newUser = req.body;
+
+  if (!newUser.name) {
+    const message = 'Missing name in request body';
+    res.status(400).send(message);
+  } else {
+    newUser.id = uuid.v4();
+    Users.push(newUser);
+    res.status(201).send(newUser);
+  }
+});
+
 
 app.listen(8080, ()=>console.log("Server started..."))
