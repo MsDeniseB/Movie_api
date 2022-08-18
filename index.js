@@ -1,122 +1,29 @@
 const express = require('express');
-const morgan = require('morgan'),
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const Models = require('./models.js');
+const passport = require('passport');
+require('./passport');
+const Movies = Models.Movie;
+const Users = Models.User;
 fs = require('fs'), // import built in node modules fs and path 
 path = require('path');
 
 const app = express();
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }));
+let auth = require('./auth')(app);
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
+
+
 app.use(morgan())
 app.use(express.static('public'));
 
-
-let movies = [
-    {
-      title: 'Inception',
-      director: 'Christopher Nolan',
-      genre: 'Sci-Fi'
-    },
-    {
-      title: 'Lord of the Rings',
-      director: 'Peter Jackson',
-      genre: 'Super-Heroes'
-    },
-    {
-      title: 'The Matrix',
-      director: 'Lana Wachowski',
-      genre: 'Sci-fi'
-    },
-    {
-        title: 'The Avengers',
-        director: 'Anthony Russo',
-        genre: 'Super-Heroes'
-      },
-      {
-        title: 'The Silence Of The Lambs',
-        director: 'Jonathan Demme',
-        genre: 'Suspense-Thriller'
-      },
-      {
-        title: 'Terminator',
-        director: 'James Cameron',
-        genre: 'Action'
-      },
-      {
-        title: 'The Prestige',
-        director: 'Christopher Nolan',
-        genre: 'Suspense-Thriller'
-      },
-      {
-        title: 'Shutter Island',
-        director: 'Martin Scorsese',
-        genre:'Suspense-Thriller'
-      },
-      {
-        title: 'The Fugitive',
-        director: 'Andrew Davis',
-        genre: 'Suspense-Thriller'
-      },
-      {
-        title: 'The Shack',
-        director: 'Stuart Hazeldine',
-        genre: 'Feel-Good'
-      }
-  ];
-
-  let users = [
-    {
-      id:1,
-      name: 'John Doe',
-      email: 'johndoe@mail.com',
-      favMovies: [{
-        title: 'Inception',
-        director: 'Christopher Nolan',
-        genre: 'Sci-Fi'
-      }]
-    },
-    {
-      id:2,
-      name: 'Jane Doe',
-      email: 'janedoe@mail.com',
-      favMovies: [{
-        title: 'Inception',
-        director: 'Christopher Nolan',
-        genre: 'Sci-Fi'
-      }]
-    },
-    {
-      id:3,
-      name: 'Janes Doe',
-      email: 'janesdoe@mail.com',
-      favMovies: [{
-        title: 'The Matrix',
-        director: 'Lana Wachowski',
-        genre: 'Sci-fi'
-      }]
-    },
-    {
-      id:4,
-      name: 'Jame Done',
-      email: 'jamedone@mail.com',
-      favMovies: [{
-        title: 'Inception',
-        director: 'Christopher Nolan',
-        genre: 'Sci-Fi'
-      }]
-    },
-    {
-      id:5,
-      name: 'Jan Foe',
-      email: 'janFoe@mail.com',
-      favMovies: [{
-        title: 'Inception',
-        director: 'Christopher Nolan',
-        genre: 'Sci-Fi'
-      }]
-    }
-  ];
+mongoose.connect('mongodb+srv://denise_h_b:WorkPass@cluster0.cmkqvzg.mongodb.net/movieflix?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.get("/", (req, res) => {
     res.send("Welcome to my movieflix")
@@ -126,50 +33,30 @@ app.get('/documentation', (req, res) => {
     res.sendFile('public/documentation.html', { root: __dirname });
   });
 
-app.get("/movies", (req, res) => {
-    res.json(movies)
-})
-
-app.get("/movies/:title", (req, res)=>{
-    res.json(movies.find(x=>x.title===req.params.title))
-})
-
-app.get("/movies/:genre", (req, res)=>{
-  res.json(movies.find(x=>x.genre===req.params.genre))
-})
-
-app.get("/movies/:director", (req, res)=>{
-  res.json(movies.find(x=>x.director===req.params.director))
-})
-
-app.get("/users", (req, res) => {
-    res.json(users)
-})
-
-app.get("/user/:name", (req, res)=>{
-    res.json(users.find(x=>x.name===req.params.name))
-})
-
-app.delete("/user/:name", (req, res)=>{
-    res.json(users.filter(x=>x.name!=req.params.name))
-})
-
-app.delete("/user/:favMovies", (req, res)=>{
-  res.json(users.filter(x=>x.favMovies!=req.params.favMovies))
-})
-
-app.post('/Users', (req, res) => {
-  let newUser = req.body;
-
-  if (!newUser.name) {
-    const message = 'Missing name in request body';
-    res.status(400).send(message);
-  } else {
-    newUser.id = uuid.v4();
-    Users.push(newUser);
-    res.status(201).send(newUser);
-  }
+app.post('/users', (req, res) => {
+  Users.findOne({ Username: req.body.Username })
+    .then((user) => {
+      if (user) {
+        return res.status(400).send(req.body.Username + 'already exists');
+      } 
+      else {
+        Users.create({
+            Username: req.body.Username,
+            Password: req.body.Password,
+            Email: req.body.Email,
+            Birthday: req.body.Birthday
+          })
+          .then((user) =>{res.status(201).json(user) })
+        .catch((error) => {
+          console.error(error);
+          res.status(500).send('Error: ' + error);
+        })
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
 });
-
 
 app.listen(8080, ()=>console.log("Server started..."))
