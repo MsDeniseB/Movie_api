@@ -34,31 +34,6 @@ app.get('/documentation', (req, res) => {
     res.sendFile('public/documentation.html', { root: __dirname });
   });
 
-app.post('/users', (req, res) => {
-  Users.findOne({ Username: req.body.Username })
-    .then((user) => {
-      if (user) {
-        return res.status(400).send(req.body.Username + 'already exists');
-      } 
-      else {
-        Users.create({
-            Username: req.body.Username,
-            Password: req.body.Password,
-            Email: req.body.Email,
-            Birthday: req.body.Birthday
-          })
-          .then((user) =>{res.status(201).json(user) })
-        .catch((error) => {
-          console.error(error);
-          res.status(500).send('Error: ' + error);
-        })
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send('Error: ' + error);
-    });
-});
 
 // Get all users
 app.get('/users', (req, res) => {
@@ -138,10 +113,9 @@ app.post('/users/:Username/movies/:MovieID', (req, res) => {
     }
   });
 });
-
+// Validation logic here for request
 app.post('/users',
-  // Validation logic here for request
-[
+  [
 check('Username', 'Username is required').isLength({min: 5}),
 check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
 check('Password', 'Password is required').not().isEmpty(),
@@ -154,13 +128,12 @@ check('Email', 'Email does not appear to be valid').isEmail()
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }
-  console.log(password)
-  let hashedPassword = Users.hashPassword(req.body.Password);
+  let hashedPassword = Users.hashPassword(req.body.Password, 10);
   console.log(hashedPassword)
   Users.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
     .then((user) => {
       if (user) {
-        //If the user is found, send a response that it already exists
+//If the user is found, send a response that it already exists
         return res.status(400).send(req.body.Username + ' already exists');
       } else {
         Users
@@ -184,10 +157,75 @@ check('Email', 'Email does not appear to be valid').isEmail()
 });
 
 // Remove movie from list of favorites
+app.delete('/users/:FavoriteMovies', (req, res) => {
+  FavoriteMovies.findOneAndRemove({ FavoriteMovies: req.params.Username })
+    .then((user) => {
+      if (!user) {
+        res.status(400).send(req.params.FavoriteMovies + ' was not found');
+      } else {
+        res.status(200).send(req.params.FavoriteMovies + ' was deleted.');
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
+});
+
 // Get Director's info
+app.get('/movies/:director', (req, res) => {
+  movies.find()
+    .then((Director) => {
+      res.status(201).json(Director);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
+});
+
 // Get Genre's info
+app.get('/users/:Genre', (req, res) => {
+  Genre.find()
+    .then((users) => {
+      res.status(201).json(Genre);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
+});
+
 
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0',() => {
  console.log('Listening on Port ' + port);
+});
+
+app.post('/users', (req, res) => {
+  let hashedPassword = Users.hashPassword(req.body.Password);
+  Users.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
+    .then((user) => {
+      if (user) {
+      //If the user is found, send a response that it already exists
+        return res.status(400).send(req.body.Username + ' already exists');
+      } else {
+        Users
+          .create({
+            Username: req.body.Username,
+            Password: hashedPassword,
+            Email: req.body.Email,
+            Birthday: req.body.Birthday
+          })
+          .then((user) => { res.status(201).json(user) })
+          .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+          });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
 });
