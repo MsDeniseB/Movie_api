@@ -23,7 +23,7 @@ app.use((err, req, res, next) => {
 app.use(morgan())
 app.use(express.static('public'));
 
-mongoose.connect('mongodb+srv://denise_h_b:WorkPass@cluster0.cmkqvzg.mongodb.net/movieflix?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb+srv://denise_h_b:pASSWORD@cluster0.cmkqvzg.mongodb.net/movieflix?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.get("/", (req, res) => {
     res.send("Welcome to my movieflix")
