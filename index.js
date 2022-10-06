@@ -25,6 +25,17 @@ app.use(express.static('public'));
 
 mongoose.connect('mongodb+srv://denise_h_b:pASSWORD@cluster0.cmkqvzg.mongodb.net/movieflix?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 
+app.get("/movies", function (req, res) {
+  Movies.find()
+    .then(function (movies) {
+      res.status(201).json(movies);
+    })
+    .catch(function (error) {
+      console.error(error);
+      res.status(500).send("Error: " + error);
+    });
+});
+
 app.get("/", (req, res) => {
     res.send("Welcome to my movieflix")
 })
@@ -59,4 +70,20 @@ app.post('/users', (req, res) => {
     });
 });
 
-app.listen(8080, ()=>console.log("Server started..."))
+
+
+
+let allowedOrigins = ['http://localhost:1234', 'http://testsite.com'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){ // If a specific origin isn’t found on the list of allowed origins
+      let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
+      return callback(new Error(message ), false);
+    }
+    return callback(null, true);
+  }
+}));
+
+ 
